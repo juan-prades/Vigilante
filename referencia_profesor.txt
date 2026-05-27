@@ -1,0 +1,880 @@
+using UnityEngine;
+
+public class ControlLuz : MonoBehaviour
+{
+    public Light luz;              // Arrastra aquí la luz desde el inspector
+    public float paso = 0.2f;      // Cantidad que sube o baja la intensidad
+
+    void Update()
+    {
+        // Aumentar intensidad (tecla 1)
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            luz.intensity += paso;
+        }
+
+        // Disminuir intensidad (tecla 2)
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            luz.intensity -= paso;
+            if (luz.intensity < 0) luz.intensity = 0;
+        }
+
+        // Apagar completamente (tecla 3)
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            luz.intensity = 0;
+        }
+    }
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: Luces
+de Carlos Rufiángel García - miércoles, 3 de diciembre de 2025, 09:03
+using UnityEngine;
+
+public class Linterna : MonoBehaviour
+{
+    public Light linterna;       // Arrastra aquí tu Spotlight
+    public float intensidad = 2; // Intensidad por defecto cuando se enciende
+
+    void Start()
+    {
+        if (linterna != null)
+            linterna.enabled = false; // Empieza apagada
+    }
+
+    void Update()
+    {
+        // Encender con un color aleatorio (tecla 4)
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            if (!linterna.enabled)
+            {
+                // Color aleatorio RGB
+                linterna.color = new Color(
+                    Random.value,
+                    Random.value,
+                    Random.value
+                );
+
+                linterna.intensity = intensidad;
+                linterna.enabled = true;
+            }
+        }
+
+        // Apagar (tecla 5)
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            if (linterna.enabled)
+                linterna.enabled = false;
+        }
+    }
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: Luces
+de Carlos Rufiángel García - miércoles, 3 de diciembre de 2025, 09:19
+using UnityEngine;
+
+public class LuzZonalTitileo : MonoBehaviour
+{
+    public Light luzZonal;          // Asigna aquí tu Point Light
+    public bool encendida = false;  // Estado inicial
+    public float intensidadBase = 2f;
+    public float variacion = 0.5f;  // Cuánto fluctúa la intensidad
+    public float velocidad = 10f;   // Velocidad del parpadeo
+
+    void Start()
+    {
+        if (luzZonal != null)
+            luzZonal.enabled = encendida;
+    }
+
+    void Update()
+    {
+        // Alternar luz con tecla 7
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            encendida = !encendida;
+            luzZonal.enabled = encendida;
+        }
+
+        // Titileo (solo si está encendida)
+        if (encendida)
+        {
+            float ruido = Mathf.PerlinNoise(Time.time * velocidad, 0f);
+            luzZonal.intensity = intensidadBase + (ruido - 0.5f) * variacion;
+        }
+    }
+}
+
+PATRULLA:
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class patrullero : MonoBehaviour
+{
+    [Header("Patrulla")]
+    public Transform[] puntos;
+    public float patrolSpeed = 2f;
+    public float distanciaMinima = 0.2f;
+
+    int indiceActual = 0;
+
+    [Header("Persecución")]
+    public Transform player;
+    public float chaseSpeed = 3.5f;
+    public float detectionRange = 6f;
+    public float loseRange = 9f;
+
+    [Header("Rotación")]
+    public float rotateSpeed = 8f; // velocidad de giro
+
+    bool persiguiendo = false;
+
+    void Update()
+    {
+        float distanciaJugador = Vector3.Distance(transform.position, player.position);
+
+        if (!persiguiendo && distanciaJugador <= detectionRange)
+            persiguiendo = true;
+
+        if (persiguiendo && distanciaJugador > loseRange)
+            persiguiendo = false;
+
+        if (persiguiendo)
+            Perseguir();
+        else
+            Patrullar();
+    }
+
+    void Patrullar()
+    {
+        if (puntos.Length == 0) return;
+
+        Transform objetivo = puntos[indiceActual];
+        Vector3 direccion = (objetivo.position - transform.position).normalized;
+
+        // Girar hacia el punto
+        RotarHacia(direccion);
+
+        // Mover al punto
+        transform.position += direccion * patrolSpeed * Time.deltaTime;
+
+        float distancia = Vector3.Distance(transform.position, objetivo.position);
+
+        if (distancia <= distanciaMinima)
+        {
+            indiceActual++;
+            if (indiceActual >= puntos.Length)
+                indiceActual = 0;
+        }
+    }
+
+    void Perseguir()
+    {
+        Vector3 direccion = (player.position - transform.position).normalized;
+
+        // Girar hacia el jugador
+        RotarHacia(direccion);
+
+        // Mover hacia el jugador
+        transform.position += direccion * chaseSpeed * Time.deltaTime;
+    }
+
+    void RotarHacia(Vector3 direccion)
+    {
+        if (direccion == Vector3.zero) return;
+
+        Quaternion rotacionObjetivo = Quaternion.LookRotation(direccion);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, rotateSpeed * Time.deltaTime);
+    }
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: Scripts Enemigos
+de Carlos Rufiángel García - miércoles, 26 de noviembre de 2025, 08:48
+CERCANO:
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class cercano : MonoBehaviour
+{
+    public Transform player;
+    public float activationRange = 8f; // Se activa
+    public float stopRange = 12f;      // Deja de seguir
+    public float speed = 3f;
+
+    private bool active = false;
+
+    void Update()
+    {
+        float dist = Vector3.Distance(transform.position, player.position);
+
+        // Se activa al estar cerca
+        if (!active && dist <= activationRange)
+            active = true;
+
+        // Se desactiva si se aleja demasiado
+        if (active && dist > stopRange)
+            active = false;
+
+        // Si está activo, persigue
+        if (active)
+        {
+            Vector3 direction = (player.position - transform.position).normalized;
+            transform.position += direction * speed * Time.deltaTime;
+        }
+    }
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: Scripts Enemigos
+de Carlos Rufiángel García - miércoles, 26 de noviembre de 2025, 08:49
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class seguir : MonoBehaviour
+{
+    public int vive = 1;
+    public Animator animator;
+    public float MoveSpeed; //Establecer velocidad de persecucion
+    // Start is called before the first frame update
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+        if (vive == 1)
+        {
+            var Player = GameObject.FindWithTag("Player").transform; ;  //Asignar el personaje al que seguiran
+
+
+            var EnemyPos = transform.position;
+            var PlayerPos = Player.position;
+
+            var targetPos = new Vector3(Player.position.x, this.transform.position.y, Player.position.z);
+            transform.LookAt(targetPos);
+            transform.position += transform.forward * MoveSpeed * Time.deltaTime;
+
+        }
+
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("salta");
+            animator.SetTrigger("saltar");
+
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("pulso el izquierdo y muere");
+            // Realizar la acción de "matar"
+            animator.SetTrigger("muere");
+            vive = 0;
+        }
+
+
+    }
+    private void OnCollisionEnter(Collision other)
+    {
+        Debug.Log("Colisión con el jugador detectada");
+        if (other.gameObject.CompareTag("Player"))
+        {
+            // Reproduce la animación cuando el jugador entra en contacto con el enemigo.
+            animator.SetTrigger("ataca");
+        }
+    }
+
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: Scripts Enemigos
+de Carlos Rufiángel García - miércoles, 26 de noviembre de 2025, 08:59
+DISPARA:
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class dispara : MonoBehaviour
+{
+    [Header("Jugador")]
+    public Transform player;
+    public float shootRange = 8f;        // distancia para disparar
+
+    [Header("Disparo")]
+    public GameObject bulletPrefab;      // tu proyectil
+    public Transform shootPoint;         // desde dónde dispara
+    public float fireRate = 1f;          // disparos por segundo
+    public float bulletSpeed = 10f;      // velocidad del proyectil
+
+    private float fireCooldown = 0f;
+
+    void Update()
+    {
+        if (player == null) return;
+
+        float distancia = Vector3.Distance(transform.position, player.position);
+
+        // Si el jugador está dentro del rango
+        if (distancia <= shootRange)
+        {
+            // Mirar hacia el jugador
+            Vector3 direccion = (player.position - transform.position).normalized;
+            Quaternion rotacion = Quaternion.LookRotation(direccion);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotacion, 10f * Time.deltaTime);
+
+            // Disparar con cooldown
+            if (fireCooldown <= 0f)
+            {
+                Disparar();
+                fireCooldown = 1f / fireRate; // tiempo entre disparos
+            }
+        }
+
+        // bajar cooldown
+        fireCooldown -= Time.deltaTime;
+    }
+
+    void Disparar()
+    {
+        GameObject bala = Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
+
+        // mover la bala hacia adelante
+        Rigidbody rb = bala.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.velocity = shootPoint.forward * bulletSpeed;
+        }
+    }
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: Scripts Enemigos
+de Carlos Rufiángel García - miércoles, 26 de noviembre de 2025, 09:01
+
+public class bala : MonoBehaviour
+{
+    public float lifeTime = 3f;
+    public float damage = 10f;
+
+    void Start()
+    {
+        Destroy(gameObject, lifeTime);
+    }
+
+    void OnCollisionEnter(Collision other)
+    {
+        // Para hacer dañito... if (other.gameObject.CompareTag("Player")) { ... }
+
+        Destroy(gameObject);
+    }
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: Scripts Enemigos
+de Carlos Rufiángel García - miércoles, 28 de enero de 2026, 09:32
+Enemigo torreta.
+script dispara, en la araña:
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class dispara : MonoBehaviour
+{
+    [Header("Jugador")]
+    public Transform player;
+    public float shootRange = 8f;        // distancia para disparar
+
+    [Header("Disparo")]
+    public GameObject bulletPrefab;      // tu proyectil
+    public Transform shootPoint;         // desde dónde dispara
+    public float fireRate = 1f;          // disparos por segundo
+    public float bulletSpeed = 10f;      // velocidad del proyectil
+
+    private float fireCooldown = 0f;
+
+    void Update()
+    {
+        if (player == null) return;
+
+        float distancia = Vector3.Distance(transform.position, player.position);
+
+        // Si el jugador está dentro del rango
+        if (distancia <= shootRange)
+        {
+            // Mirar hacia el jugador
+            Vector3 direccion = (player.position - transform.position).normalized;
+            Quaternion rotacion = Quaternion.LookRotation(direccion);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotacion, 10f * Time.deltaTime);
+
+            // Disparar con cooldown
+            if (fireCooldown <= 0f)
+            {
+                Disparar();
+                fireCooldown = 1f / fireRate; // tiempo entre disparos
+            }
+        }
+
+        // bajar cooldown
+        fireCooldown -= Time.deltaTime;
+    }
+
+    void Disparar()
+    {
+        GameObject bala = Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
+
+        // mover la bala hacia adelante
+        Rigidbody rb = bala.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.velocity = shootPoint.forward * bulletSpeed;
+        }
+    }
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: Scripts Enemigos
+de Carlos Rufiángel García - miércoles, 28 de enero de 2026, 09:34
+Objeto bala, con script:
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class bala : MonoBehaviour
+{
+    public float lifeTime = 3f;
+    public float damage = 10f;
+
+    void Start()
+    {
+        Destroy(gameObject, lifeTime);
+    }
+
+    void OnCollisionEnter(Collision other)
+    {
+        // Para hacer dañito... if (other.gameObject.CompareTag("Player")) { ... }
+
+        Destroy(gameObject);
+    }
+}
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+public class SoundManager : MonoBehaviour
+{
+    public static SoundManager Instance;
+
+    [Header("Audio Clips")]
+    public AudioClip backgroundMusic; // Banda sonora
+    public AudioClip hitSound; // Sonido al presionar "E"
+    public AudioClip jumpSound; // Sonido al presionar "Espacio"
+
+    [Header("Audio Sources")]
+    private AudioSource musicSource;
+    private AudioSource effectsSource;
+
+    [Header("Volume Settings")]
+    [Range(0f, 1f)] public float musicVolume = 0.5f; // Volumen de la música
+    [Range(0f, 1f)] public float effectsVolume = 1.0f; // Volumen de los efectos
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        musicSource = gameObject.AddComponent<AudioSource>();
+        effectsSource = gameObject.AddComponent<AudioSource>();
+
+        musicSource.loop = true;
+    }
+
+    void Start()
+    {
+        PlayBackgroundMusic();
+    }
+
+    void Update()
+    {
+        musicSource.volume = musicVolume;
+        effectsSource.volume = effectsVolume;
+    }
+
+    public void PlayBackgroundMusic()
+    {
+        if (backgroundMusic != null)
+        {
+            musicSource.clip = backgroundMusic;
+            musicSource.volume = musicVolume;
+            musicSource.Play();
+        }
+    }
+
+    public void PlayEffectSound(AudioClip clip)
+    {
+        if (clip != null)
+        {
+            effectsSource.PlayOneShot(clip);
+        }
+    }
+
+    public void PlayZoneSound(AudioClip clip, float volume)
+    {
+        if (clip != null)
+        {
+            effectsSource.PlayOneShot(clip, volume);
+        }
+    }
+}
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: SONIDOS
+de Carlos Rufiángel García - miércoles, 19 de noviembre de 2025, 10:05
+if (Input.GetKeyDown(KeyCode.E))
+    {
+        SoundManager.Instance.PlayEffectSound(SoundManager.Instance.hitSound);
+    }
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: SONIDOS
+de Carlos Rufiángel García - miércoles, 19 de noviembre de 2025, 10:13
+using UnityEngine;
+
+public class ZoneTrigger : MonoBehaviour
+{
+    public AudioClip zoneSound; // Sonido específico para esta zona
+
+    [Range(0f, 1f)] public float zoneSoundVolume = 0.8f; // Volumen para este sonido
+
+    private AudioSource zoneAudioSource; // Fuente de sonido para esta zona
+
+    private void Start()
+    {
+        // Crear un AudioSource específico para la zona
+        zoneAudioSource = gameObject.AddComponent<AudioSource>();
+        zoneAudioSource.clip = zoneSound;
+        zoneAudioSource.volume = zoneSoundVolume;
+        zoneAudioSource.loop = true; // Para que el sonido se repita mientras esté en la zona
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player")) // Asegúrate de etiquetar al jugador como "Player"
+        {
+            if (zoneAudioSource != null && !zoneAudioSource.isPlaying)
+            {
+                zoneAudioSource.Play();
+            }
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            if (zoneAudioSource != null && zoneAudioSource.isPlaying)
+            {
+                zoneAudioSource.Stop();
+            }
+        }
+    }
+}
+
+
+Cambio de cámara al pulsar teclas
+
+------
+
+using UnityEngine;
+
+public class CameraSwitcher : MonoBehaviour
+{
+    public Transform player; // Referencia al jugador
+    public Camera mainCamera; // Cámara principal
+    public Vector3 thirdPersonOffset = new Vector3(0, 3, -5); // Offset para tercera persona
+    public Vector3 topDownOffset = new Vector3(0, 10, 0); // Offset para vista cenital
+
+    private enum CameraView { FirstPerson, ThirdPerson, TopDown }
+    private CameraView currentView;
+
+    void Start()
+    {
+        // Buscar automáticamente el jugador si no está asignado
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+                player = playerObj.transform;
+        }
+
+        // Asegurar que haya una cámara asignada
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        // Comenzar en tercera persona
+        SetThirdPersonView();
+    }
+
+    void Update()
+    {
+        // Cambiar entre vistas con las teclas
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            SetFirstPersonView();
+        }
+        else if (Input.GetKeyDown(KeyCode.Y))
+        {
+            SetThirdPersonView();
+        }
+        else if (Input.GetKeyDown(KeyCode.U))
+        {
+            SetTopDownView();
+        }
+
+        // Actualizar la posición de la cámara según la vista activa
+        FollowPlayer();
+    }
+
+    void FollowPlayer()
+    {
+
+        switch (currentView)
+        {
+            case CameraView.FirstPerson:
+                mainCamera.transform.position = player.position + new Vector3(0, 0.8f, 0); // Vista en primera persona
+                mainCamera.transform.rotation = player.rotation;
+                break;
+
+            case CameraView.ThirdPerson:
+                mainCamera.transform.position = Vector3.Lerp(
+                    mainCamera.transform.position,
+                    player.position + thirdPersonOffset,
+                    Time.deltaTime * 10 // Suavizado del movimiento de la cámara
+                );
+                mainCamera.transform.LookAt(player);
+                break;
+
+            case CameraView.TopDown:
+                mainCamera.transform.position = Vector3.Lerp(
+                    mainCamera.transform.position,
+                    player.position + topDownOffset,
+                    Time.deltaTime * 10
+                );
+                mainCamera.transform.rotation = Quaternion.Euler(90, 0, 0); // Orientación cenital
+                break;
+        }
+    }
+
+    void SetFirstPersonView()
+    {
+        currentView = CameraView.FirstPerson;
+    }
+
+    void SetThirdPersonView()
+    {
+        currentView = CameraView.ThirdPerson;
+    }
+
+    void SetTopDownView()
+    {
+        currentView = CameraView.TopDown;
+    }
+}
+
+------
+
+Imagen de Carlos Rufiángel García
+En respuesta a Carlos Rufiángel García
+Re: SCRIPTS
+de Carlos Rufiángel García - miércoles, 29 de octubre de 2025, 09:15
+Script de vista en primera persona parametrizado.
+
+------
+
+using UnityEngine;
+
+[RequireComponent(typeof(CharacterController))]
+public class FirstPersonController : MonoBehaviour
+{
+    [System.Serializable]
+    public class MovementSettings
+    {
+        [Header("Movimiento")]
+        public float moveSpeed = 5f;
+        [Range(0f, 1f)] public float movementSmoothness = 0.125f;
+        public float jumpForce = 7f;
+        public float gravity = 20f;
+    }
+
+    [System.Serializable]
+    public class MouseSettings
+    {
+        [Header("Ratón")]
+        public Vector2 sensitivity = new Vector2(200f, 200f);
+        [Range(0f, 0.5f)] public float rotationSmoothTime = 0.05f;
+        public float minPitch = -30f;
+        public float maxPitch = 60f;
+        public bool lockCursor = true;
+    }
+
+    [System.Serializable]
+    public class CameraSettings
+    {
+        [Header("Cámara")]
+        public Camera playerCamera;
+        [Tooltip("Altura de la cámara respecto al suelo del jugador")]
+        public float cameraHeight = 0.9f;
+        [Range(40f, 110f)] public float initialFOV = 60f;
+        [Range(20f, 179f)] public float minFOV = 45f;
+        [Range(20f, 179f)] public float maxFOV = 90f;
+    }
+
+    public MovementSettings movement = new MovementSettings();
+    public MouseSettings mouse = new MouseSettings();
+    public CameraSettings cameraSettings = new CameraSettings();
+
+    private CharacterController controller;
+    private Vector3 currentVelocity = Vector3.zero;
+    private float verticalVelocity = 0f;
+
+    private float yaw;   // rotación horizontal del cuerpo
+    private float pitch; // rotación vertical de la cámara
+    private float yawSmooth, pitchSmooth;
+    private float yawSmoothVelocity, pitchSmoothVelocity;
+
+    void Start()
+    {
+
+        // Bloquear y ocultar cursor
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        controller = GetComponent<CharacterController>();
+
+        if (cameraSettings.playerCamera == null)
+        {
+            cameraSettings.playerCamera = Camera.main;
+        }
+
+        // Colocar la cámara correctamente sobre el jugador
+        if (cameraSettings.playerCamera != null)
+        {
+            if (cameraSettings.playerCamera.transform.parent != transform)
+            {
+                cameraSettings.playerCamera.transform.SetParent(transform);
+            }
+
+            cameraSettings.playerCamera.transform.localPosition = new Vector3(0f, cameraSettings.cameraHeight, 0f);
+            cameraSettings.playerCamera.transform.localRotation = Quaternion.identity;
+            cameraSettings.playerCamera.fieldOfView = Mathf.Clamp(cameraSettings.initialFOV, cameraSettings.minFOV, cameraSettings.maxFOV);
+        }
+
+        yaw = transform.eulerAngles.y;
+        pitch = 0f;
+
+        if (mouse.lockCursor)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        if (Input.GetMouseButtonDown(0))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
+        HandleMouseLook();
+        HandleMovement();
+    }
+
+    void HandleMouseLook()
+    {
+        if (cameraSettings.playerCamera == null) return;
+
+        float mouseX = Input.GetAxis("Mouse X") * mouse.sensitivity.x * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouse.sensitivity.y * Time.deltaTime;
+
+        yaw += mouseX;
+        pitch -= mouseY;
+        pitch = Mathf.Clamp(pitch, mouse.minPitch, mouse.maxPitch);
+
+        yawSmooth = Mathf.SmoothDampAngle(yawSmooth, yaw, ref yawSmoothVelocity, mouse.rotationSmoothTime);
+        pitchSmooth = Mathf.SmoothDampAngle(pitchSmooth, pitch, ref pitchSmoothVelocity, mouse.rotationSmoothTime);
+
+        transform.localRotation = Quaternion.Euler(0f, yawSmooth, 0f);
+        cameraSettings.playerCamera.transform.localRotation = Quaternion.Euler(pitchSmooth, 0f, 0f);
+    }
+
+    void HandleMovement()
+    {
+        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        Vector3 desiredMove = (transform.right * input.x + transform.forward * input.y) * movement.moveSpeed;
+        Vector3 horizontalVelocity = Vector3.SmoothDamp(currentVelocity, desiredMove, ref currentVelocity, movement.movementSmoothness);
+
+        if (controller.isGrounded)
+        {
+            if (verticalVelocity < 0f) verticalVelocity = -2f;
+            if (Input.GetButtonDown("Jump")) verticalVelocity = movement.jumpForce;
+        }
+        else
+        {
+            verticalVelocity -= movement.gravity * Time.deltaTime;
+        }
+
+        Vector3 finalVelocity = horizontalVelocity + Vector3.up * verticalVelocity;
+        controller.Move(finalVelocity * Time.deltaTime);
+    }
+
+    public void SetFOV(float fov)
+    {
+        if (cameraSettings.playerCamera == null) return;
+        cameraSettings.playerCamera.fieldOfView = Mathf.Clamp(fov, cameraSettings.minFOV, cameraSettings.maxFOV);
+    }
+}
+
+------

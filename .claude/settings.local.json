@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($j = Get-Content \"C:\\\\Users\\\\Trabajo\\\\GitHub\\\\Vigilante\\\\.claude\\\\settings.json\" -Raw | ConvertFrom-Json; $j.permissions.allow)",
+      "PowerShell(Move-Item *)",
+      "WebFetch(domain:assetstore.unity.com)",
+      "WebSearch"
+    ]
+  }
+}

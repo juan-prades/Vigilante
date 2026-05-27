@@ -1,0 +1,35 @@
+CRÉDITOS - El Despertar del Vigía
+==================================
+
+Apunta aquí CADA asset (modelo, textura, sonido) que descargues: de dónde
+viene y su licencia. Los assets CC-BY OBLIGAN a citar al autor; los CC0 no
+lo exigen, pero queda mejor citarlos igualmente (y al profe le gusta verlo).
+
+Formato:  [Tipo] Nombre del asset — Autor — Web — Licencia
+
+
+--- MODELOS 3D ---
+[Modelo] .................... — .................... — .................... — CC0 / CC-BY
+[Modelo] .................... — .................... — .................... —
+[Modelo] .................... — .................... — .................... —
+
+
+--- TEXTURAS ---
+[Textura] ................... — .................... — .................... —
+[Textura] ................... — .................... — .................... —
+
+
+--- SONIDOS / MÚSICA ---
+[Sonido] .................... — .................... — .................... —
+[Sonido] .................... — .................... — .................... —
+
+
+--- SITIOS DE DONDE PUEDO SACAR COSAS (referencia) ---
+- ambientCG ....... https://ambientcg.com ............ (texturas, CC0)
+- Poly Haven ...... https://polyhaven.com ............ (texturas/modelos, CC0)
+- Kenney .......... https://kenney.nl/assets ......... (modelos low-poly, CC0)  [coger piezas sueltas, NO el kit entero]
+- Quaternius ...... https://quaternius.com ........... (modelos low-poly, CC0)
+- Sketchfab ....... https://sketchfab.com ............ (modelos varios; REVISAR licencia de cada uno)
+- Mixamo .......... https://www.mixamo.com ........... (personajes animados, gratis)
+- Pixabay ......... https://pixabay.com .............. (música y efectos, gratis)
+- Freesound ....... https://freesound.org ............ (efectos, cuenta gratis; revisar licencia)
