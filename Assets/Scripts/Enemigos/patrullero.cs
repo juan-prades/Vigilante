@@ -14,8 +14,11 @@ public class patrullero : MonoBehaviour
     public float chaseSpeed = 3.5f;
     public float detectionRange = 6f;
     public float loseRange = 9f;
+    public float rangoAtaque = 1.8f; // Distancia a la que mata al jugador
+    public AudioClip sonidoAviso; // Sonido cuando ve al jugador
 
     NavMeshAgent agente; // El componente que mueve al enemigo esquivando paredes
+    AudioSource audioAviso; // Fuente de sonido del enemigo
 
     bool persiguiendo = false;
 
@@ -23,6 +26,9 @@ public class patrullero : MonoBehaviour
     {
         // Cogemos el NavMeshAgent que lleva este objeto
         agente = GetComponent<NavMeshAgent>();
+
+        // Preparar el sonido de aviso
+        audioAviso = gameObject.AddComponent<AudioSource>();
 
         // Buscamos un primer destino al azar
         IrAOtroSitio();
@@ -34,7 +40,12 @@ public class patrullero : MonoBehaviour
 
         // Si el jugador se acerca, empezamos a perseguir
         if (!persiguiendo && distanciaJugador <= detectionRange)
+        {
             persiguiendo = true;
+
+            if (sonidoAviso != null)
+                audioAviso.PlayOneShot(sonidoAviso);
+        }
 
         // Si el jugador se aleja, dejamos de perseguir
         if (persiguiendo && distanciaJugador > loseRange)
@@ -44,6 +55,15 @@ public class patrullero : MonoBehaviour
             Perseguir();
         else
             Deambular();
+
+        // Si alcanza al jugador, termina la partida
+        if (distanciaJugador <= rangoAtaque)
+        {
+            Debug.Log("La araña atrapó al jugador");
+
+            if (UIManager.Instance != null)
+                UIManager.Instance.MostrarPerdiste();
+        }
     }
 
     void Deambular()
@@ -79,4 +99,5 @@ public class patrullero : MonoBehaviour
         // Vamos hacia el jugador (el NavMesh rodea las paredes)
         agente.SetDestination(player.position);
     }
+
 }

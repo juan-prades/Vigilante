@@ -40,7 +40,11 @@ public class FirstPersonController : MonoBehaviour
     public MouseSettings mouse = new MouseSettings();
     public CameraSettings cameraSettings = new CameraSettings();
 
+    [Header("Sonido")]
+    public AudioClip sonidoSalto; // Sonido al saltar
+
     private CharacterController controller;
+    private AudioSource audioJugador; // Fuente de sonido del jugador
     private Vector3 currentVelocity = Vector3.zero;
     private Vector3 suavizadoVel = Vector3.zero; // FIX MOVIMIENTO: ref propia para el SmoothDamp (ver HandleMovement)
     private float verticalVelocity = 0f;
@@ -58,6 +62,7 @@ public class FirstPersonController : MonoBehaviour
         Cursor.visible = false;
 
         controller = GetComponent<CharacterController>();
+        audioJugador = gameObject.AddComponent<AudioSource>();
 
         if (cameraSettings.playerCamera == null)
         {
@@ -91,9 +96,17 @@ public class FirstPersonController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (UIManager.Instance != null)
+                return;
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+
+        // Si las instrucciones están abiertas, no mover ni girar al jugador
+        if (UIManager.Instance != null && UIManager.Instance.InstruccionesAbiertas())
+            return;
+
         if (Input.GetMouseButtonDown(0))
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -139,7 +152,13 @@ public class FirstPersonController : MonoBehaviour
         if (controller.isGrounded)
         {
             if (verticalVelocity < 0f) verticalVelocity = -2f;
-            if (Input.GetButtonDown("Jump")) verticalVelocity = movement.jumpForce;
+            if (Input.GetButtonDown("Jump"))
+            {
+                verticalVelocity = movement.jumpForce;
+
+                if (sonidoSalto != null)
+                    audioJugador.PlayOneShot(sonidoSalto);
+            }
         }
         else
         {
