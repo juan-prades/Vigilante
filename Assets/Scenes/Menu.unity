@@ -740,7 +740,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_text: "INSTRUCCIONES\n\nWASD - Moverse        Raton - Mirar alrededor        Espacio - Saltar\n\n4 - Encender linterna        5 - Apagar linterna\n\n1 - Subir luces        2 - Bajar luces        3 - Apagar luces\n\n7 - Activar o desactivar luces parpadeantes\n\nT - Primera persona        Y - Tercera persona        U - Camara cenital\n\nEsc - Ver instrucciones durante la partida\n\nOBJETIVO:\nLlega hasta el panel de control final sin ser atrapado por los enemigos."
+  m_text: "INSTRUCCIONES\n\nWASD - Moverse        Raton - Mirar alrededor        Espacio - Saltar\n\n4 - Encender linterna        5 - Apagar linterna\n\n1 - Subir luces        2 - Bajar luces        3 - Apagar luces\n\n7 - Activar o desactivar luces parpadeantes\n\nT - Primera persona        Y - Tercera persona        U - Camara cenital\n\nEsc - Ver instrucciones durante la partida\n\nOBJETIVO:\nEncuentra las 3 monedas y llega al panel de control final sin ser atrapado."
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSize: 24

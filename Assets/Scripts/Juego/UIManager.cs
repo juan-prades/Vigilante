@@ -13,6 +13,10 @@ public class UIManager : MonoBehaviour
     public GameObject panelPausa;       // Panel que muestra instrucciones y opciones
     public GameObject panelOpciones;    // Panel que muestra el volumen
     public Slider sliderVolumen;        // Slider para subir y bajar el volumen
+    public TextMeshProUGUI textoMision; // Texto de la misión y las monedas
+
+    [Header("Misión")]
+    public int monedasObjetivo = 3;     // Monedas necesarias para poder salir
 
     [Header("Sonidos")]
     public AudioClip musicaJuego;       // Música de fondo de la partida
@@ -24,6 +28,7 @@ public class UIManager : MonoBehaviour
     private bool pausado = false;       // Para saber si el panel de pausa está abierto
     private bool instruccionesAbiertas = false; // Para saber si el panel está abierto
     private bool opcionesAbiertas = false; // Para saber si las opciones están abiertas
+    private int monedas = 0;            // Monedas recogidas por el jugador
     private AudioSource audioMusica;     // Fuente para la música de fondo
     private AudioSource audioEfectos;    // Fuente para victoria y derrota
     private AudioSource audioInstrucciones; // Fuente para las instrucciones
@@ -75,6 +80,10 @@ public class UIManager : MonoBehaviour
         // Crear pausa y opciones si no están puestas en el Canvas
         PrepararMenuPausa();
 
+        // Crear y actualizar el texto de la misión
+        PrepararMision();
+        ActualizarMision();
+
         // Reproducir la música de fondo de la partida
         if (musicaJuego != null)
         {
@@ -95,6 +104,13 @@ public class UIManager : MonoBehaviour
     // Muestra el cartel de "GANASTE"
     public void MostrarGanaste()
     {
+        // No se puede ganar sin recoger todas las monedas
+        if (!TieneTodasLasMonedas())
+        {
+            Debug.Log("Faltan monedas para poder salir");
+            return;
+        }
+
         // Si ya se acabó la partida, no hacemos nada
         if (terminado) return;
         terminado = true;
@@ -202,7 +218,10 @@ public class UIManager : MonoBehaviour
         Debug.Log("Mostrar pausa");
 
         if (panelPausa != null)
+        {
             panelPausa.SetActive(true);
+            panelPausa.transform.SetAsLastSibling();
+        }
 
         pausado = true;
         Time.timeScale = 0f;
@@ -243,7 +262,10 @@ public class UIManager : MonoBehaviour
         Debug.Log("Mostrar instrucciones");
 
         if (panelInstrucciones != null)
+        {
             panelInstrucciones.SetActive(true);
+            panelInstrucciones.transform.SetAsLastSibling();
+        }
 
         if (panelPausa != null)
             panelPausa.SetActive(false);
@@ -285,7 +307,10 @@ public class UIManager : MonoBehaviour
         Debug.Log("Mostrar opciones");
 
         if (panelOpciones != null)
+        {
             panelOpciones.SetActive(true);
+            panelOpciones.transform.SetAsLastSibling();
+        }
 
         if (panelPausa != null)
             panelPausa.SetActive(false);
@@ -322,6 +347,47 @@ public class UIManager : MonoBehaviour
     public bool InstruccionesAbiertas()
     {
         return pausado || instruccionesAbiertas || opcionesAbiertas;
+    }
+
+    // Suma una moneda recogida
+    public void RecogerMoneda()
+    {
+        if (monedas < monedasObjetivo)
+            monedas++;
+
+        ActualizarMision();
+    }
+
+    // Comprueba si el jugador tiene todas las monedas
+    public bool TieneTodasLasMonedas()
+    {
+        return monedas >= monedasObjetivo;
+    }
+
+    // Actualiza el texto de la misión
+    void ActualizarMision()
+    {
+        if (textoMision != null)
+            textoMision.text = "Misión: encuentra las " + monedasObjetivo + " monedas y sal\nMonedas: " + monedas + "/" + monedasObjetivo;
+    }
+
+    // Prepara el texto de misión si no está puesto en el Canvas
+    void PrepararMision()
+    {
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+
+        if (canvas == null)
+            return;
+
+        if (textoMision == null)
+        {
+            textoMision = CrearTexto(canvas.transform, "TextoMision", "", new Vector2(0, -45), new Vector2(780, 80), 24);
+
+            RectTransform rect = textoMision.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 1f);
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+        }
     }
 
     // Prepara el menú de pausa y opciones si faltan

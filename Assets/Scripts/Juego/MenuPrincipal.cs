@@ -73,7 +73,10 @@ public class MenuPrincipal : MonoBehaviour
         Debug.Log("Mostrar instrucciones");
 
         if (panelInstrucciones != null)
+        {
             panelInstrucciones.SetActive(true);
+            panelInstrucciones.transform.SetAsLastSibling();
+        }
     }
 
     // Se llama desde el botón VOLVER
@@ -91,7 +94,10 @@ public class MenuPrincipal : MonoBehaviour
         Debug.Log("Mostrar opciones");
 
         if (panelOpciones != null)
+        {
             panelOpciones.SetActive(true);
+            panelOpciones.transform.SetAsLastSibling();
+        }
     }
 
     // Se llama desde el botón VOLVER de opciones

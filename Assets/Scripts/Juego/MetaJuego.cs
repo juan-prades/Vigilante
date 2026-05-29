@@ -12,6 +12,13 @@ public class MetaJuego : MonoBehaviour
         {
             Debug.Log("El jugador llegó a la meta");
 
+            // Solo se puede salir si tiene todas las monedas
+            if (UIManager.Instance != null && !UIManager.Instance.TieneTodasLasMonedas())
+            {
+                Debug.Log("Todavía faltan monedas");
+                return;
+            }
+
             // Avisar al UIManager para que muestre el cartel de victoria
             UIManager.Instance.MostrarGanaste();
         }
